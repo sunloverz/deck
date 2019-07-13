@@ -1,6 +1,9 @@
 package deck
 
 import (
+	"time"
+	"math/rand"
+	"sort"
 	"fmt"
 )
 
@@ -35,6 +38,11 @@ const (
 	King
 )
 
+const (
+	minRank = Ace
+	maxRank = King
+)
+
 type Card struct {
 	Suit
 	Rank
@@ -47,12 +55,54 @@ func (c Card) String() string {
 	return fmt.Sprintf("%s of %ss", c.Rank.String(), c.Suit.String())
 }
 
-func New() []Card {
+func New(opts ...func([]Card) []Card) []Card {
    var cards []Card
    for _, suit := range suits {
      for rank := Ace; rank <= King; rank++ {
 		 cards = append(cards, Card{Suit: suit, Rank: rank})
 	 }
    }
+
+   for _, opt := range opts {
+		cards = opt(cards)
+	}
+
    return cards
+}
+
+func Sort(cards []Card) []Card {
+  sort.Slice(cards, func(i, j int) bool {
+	  return absRank(cards[i]) < absRank(cards[j])
+  })
+  return cards
+}
+
+func Shuffle(cards []Card) []Card {
+    rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(cards), func(i, j int) { cards[i], cards[j] = cards[j], cards[i] })
+	return cards
+}
+
+func Jokers(n int) func(cards []Card) []Card {
+  return func(cards []Card) []Card {
+	  for i := 0; i<n; i++ {
+		  cards = append(cards, Card{Suit: Joker, Rank: Rank(i)})
+	  }
+	  return cards
+	}
+}
+
+func DefaultSort(cards []Card) []Card {
+	sort.Slice(cards, Less(cards))
+	return cards
+}
+
+func absRank(c Card) int {
+	return int(c.Suit)*int(maxRank) + int(c.Rank)
+}
+
+func Less(cards []Card) func(i, j int) bool {
+	return func(i, j int) bool {
+		return absRank(cards[i]) < absRank(cards[j])
+	}
 }
