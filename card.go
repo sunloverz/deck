@@ -92,6 +92,28 @@ func Jokers(n int) func(cards []Card) []Card {
 	}
 }
 
+func FilterCards(f func(card Card) bool) func(cards []Card) []Card {
+  return func(cards []Card) []Card {
+	var ret []Card
+	for _, c := range cards {
+		if !f(c) {
+			ret = append(ret, c)	  
+		}
+	}
+	return ret
+  }
+}
+
+func Deck(n int) func(cards []Card) []Card {
+  return func(cards []Card) []Card {
+	  var ret []Card
+	  for i:=0; i<n; i++ {
+		  ret = append(ret, cards...)
+	  }
+	  return ret
+  }
+}
+
 func DefaultSort(cards []Card) []Card {
 	sort.Slice(cards, Less(cards))
 	return cards

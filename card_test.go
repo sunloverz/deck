@@ -61,7 +61,22 @@ func TestJokers(t *testing.T) {
 	}
 }
 
-// func TestShuffle(t *testing.T) {
-// 	cards := New(Shuffle)
-// 	fmt.Println(cards)
-// }
+func TestFilterCard(t *testing.T) {
+	filter := func(card Card) bool {
+	  return card.Rank == Two || card.Rank == Three	
+	}
+	cards := New(FilterCards(filter))
+    for _, c := range cards {
+		if c.Rank == Two || c.Rank == Three {
+			t.Error("Expected all twos and threes to be filtered out.")
+		}
+	}
+}
+
+func TestDeck(t *testing.T) {
+   cards := New(Deck(3))
+
+   if len(cards) != 52 * 3 {
+	   t.Errorf("Expected %d cards, received %d cards.", 52*3, len(cards))
+   }
+}
